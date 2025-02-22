@@ -1,0 +1,45 @@
+# Node.js
+# Build a general Node.js project with npm.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+- master
+
+pool: self-host
+
+steps:
+- powershell: |
+    $yarnPath = Join-Path $env:ProgramFiles "nodejs\yarn.cmd" # Or use Get-Command yarn | Select-Object -ExpandProperty Source if yarn is global via corepack
+    $serverProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "`"$yarnPath`"", "run", "start:test_env" -NoNewWindow -PassThru
+    echo "##vso[task.setvariable variable=serverPID]$($serverProcess.Id)"
+    Write-Host "Server started with PID: $($serverProcess.Id)"
+  displayName: 'Yarn run test server'
+  name: startServer
+  continueOnError: true
+
+- powershell: |
+    $timeoutSeconds = 60 # Adjust as needed
+    $startTime = Get-Date
+    $serverReady = $false
+
+    while (-not $serverReady -and ((Get-Date).ToUniversalTime() -lt ($startTime.AddSeconds($timeoutSeconds)).ToUniversalTime())) { # Correct comparison
+        Start-Sleep -Milliseconds 500 # Wait a bit before retrying
+        $serverReady = Test-NetConnection -ComputerName localhost -Port 3000 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty TcpTestSucceeded
+        Write-Host "Checking server readiness... ($([datetime]::UtcNow.ToString("HH:mm:ss.fff"))) - $($serverReady)" # Add some logging
+    }
+
+    if ($serverReady) {
+        Write-Host "Server is ready after $($([int]($((Get-Date) - $startTime).TotalSeconds))) seconds."
+    } else {
+        Write-Error "Server did not start within $timeoutSeconds seconds. Check server logs."
+        exit 1 # Fail the pipeline
+    }
+  displayName: 'Check Server Readiness'
+  
+- powershell: |
+    # Retrieve the server PID from the pipeline variable
+    $serverPID = $(serverPID)
+    Write-Host "Retrieved server PID: $serverPID"
+  displayName: 'Retrieve server PID'
+  name: retrieveServerPID
