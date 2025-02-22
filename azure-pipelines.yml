@@ -9,9 +9,14 @@ trigger:
 pool: self-host
 
 steps:
+
+- script: |
+    npm run build
+  displayName: 'Yarn install packages'
+
 - powershell: |
     $yarnPath = Join-Path $env:ProgramFiles "nodejs\yarn.cmd" # Or use Get-Command yarn | Select-Object -ExpandProperty Source if yarn is global via corepack
-    $serverProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "`"$yarnPath`"", "run", "start:test_env" -NoNewWindow -PassThru
+    $serverProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "`"$yarnPath`"", "run", "start" -NoNewWindow -PassThru
     echo "##vso[task.setvariable variable=serverPID]$($serverProcess.Id)"
     Write-Host "Server started with PID: $($serverProcess.Id)"
   displayName: 'Yarn run test server'
