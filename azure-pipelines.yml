@@ -48,3 +48,14 @@ steps:
     Write-Host "Retrieved server PID: $serverPID"
   displayName: 'Retrieve server PID'
   name: retrieveServerPID
+
+- powershell: |
+    $serverPID = $(serverPID)
+    if (Get-Process -Id $serverPID -ErrorAction SilentlyContinue) {
+    Stop-Process -Id $serverPID -Force
+    Write-Host "Server process with PID $serverPID has been stopped."
+    } else {
+    Write-Host "Server process with PID $serverPID is not running."
+    }
+  displayName: 'Stop Yarn Test Server'
+  name: stopServer
