@@ -81,7 +81,7 @@ stages:
   - stage: deploy_stage
     displayName: Deploy stage
     jobs:        
-      - deployment: deploy
+      - deployment: VMDeploy
         displayName: Deploy to VM
         environment:
           name: 'tc_vm'
