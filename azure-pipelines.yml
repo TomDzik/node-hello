@@ -8,6 +8,10 @@ trigger:
 
 pool: self-host
 
+variables:
+  - name: System.Debug
+    value: true
+
 stages:
   # - stage: Build
   #   displayName: Build stage
@@ -72,7 +76,7 @@ stages:
       - deployment: deploy
         displayName: Deploy to VM
         environment:
-          name: 'tc_vm'
+          name: tc_vm
           resourceType: VirtualMachine
         strategy:
           runOnce:
