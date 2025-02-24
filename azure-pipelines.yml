@@ -9,62 +9,62 @@ trigger:
 pool: self-host
 
 stages:
-  - stage: Build
-    displayName: Build stage
-    jobs:
-      - job: Build
-        displayName: Build
-        steps:
+  # - stage: Build
+  #   displayName: Build stage
+  #   jobs:
+  #     - job: Build
+  #       displayName: Build
+  #       steps:
 
-        - script: |
-            yarn
-          displayName: 'Yarn install packages'
+  #       - script: |
+  #           yarn
+  #         displayName: 'Yarn install packages'
 
-        - powershell: |
-            $yarnPath = Join-Path $env:ProgramFiles "nodejs\yarn.cmd" # Or use Get-Command yarn | Select-Object -ExpandProperty Source if yarn is global via corepack
-            $serverProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "`"$yarnPath`"", "run", "start" -NoNewWindow -PassThru
-            echo "##vso[task.setvariable variable=serverPID]$($serverProcess.Id)"
-            Write-Host "Server started with PID: $($serverProcess.Id)"
-          displayName: 'Yarn run test server'
-          name: startServer
-          continueOnError: true
+  #       - powershell: |
+  #           $yarnPath = Join-Path $env:ProgramFiles "nodejs\yarn.cmd" # Or use Get-Command yarn | Select-Object -ExpandProperty Source if yarn is global via corepack
+  #           $serverProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "`"$yarnPath`"", "run", "start" -NoNewWindow -PassThru
+  #           echo "##vso[task.setvariable variable=serverPID]$($serverProcess.Id)"
+  #           Write-Host "Server started with PID: $($serverProcess.Id)"
+  #         displayName: 'Yarn run test server'
+  #         name: startServer
+  #         continueOnError: true
 
-        - powershell: |
-            $timeoutSeconds = 60 # Adjust as needed
-            $startTime = Get-Date
-            $serverReady = $false
+  #       - powershell: |
+  #           $timeoutSeconds = 60 # Adjust as needed
+  #           $startTime = Get-Date
+  #           $serverReady = $false
 
-            while (-not $serverReady -and ((Get-Date).ToUniversalTime() -lt ($startTime.AddSeconds($timeoutSeconds)).ToUniversalTime())) { # Correct comparison
-                Start-Sleep -Milliseconds 500 # Wait a bit before retrying
-                $serverReady = Test-NetConnection -ComputerName localhost -Port 3000 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty TcpTestSucceeded
-                Write-Host "Checking server readiness... ($([datetime]::UtcNow.ToString("HH:mm:ss.fff"))) - $($serverReady)" # Add some logging
-            }
+  #           while (-not $serverReady -and ((Get-Date).ToUniversalTime() -lt ($startTime.AddSeconds($timeoutSeconds)).ToUniversalTime())) { # Correct comparison
+  #               Start-Sleep -Milliseconds 500 # Wait a bit before retrying
+  #               $serverReady = Test-NetConnection -ComputerName localhost -Port 3000 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty TcpTestSucceeded
+  #               Write-Host "Checking server readiness... ($([datetime]::UtcNow.ToString("HH:mm:ss.fff"))) - $($serverReady)" # Add some logging
+  #           }
 
-            if ($serverReady) {
-                Write-Host "Server is ready after $($([int]($((Get-Date) - $startTime).TotalSeconds))) seconds."
-            } else {
-                Write-Error "Server did not start within $timeoutSeconds seconds. Check server logs."
-                exit 1 # Fail the pipeline
-            }
-          displayName: 'Check Server Readiness'
+  #           if ($serverReady) {
+  #               Write-Host "Server is ready after $($([int]($((Get-Date) - $startTime).TotalSeconds))) seconds."
+  #           } else {
+  #               Write-Error "Server did not start within $timeoutSeconds seconds. Check server logs."
+  #               exit 1 # Fail the pipeline
+  #           }
+  #         displayName: 'Check Server Readiness'
           
-        - powershell: |
-            # Retrieve the server PID from the pipeline variable
-            $serverPID = $(serverPID)
-            Write-Host "Retrieved server PID: $serverPID"
-          displayName: 'Retrieve server PID'
-          name: retrieveServerPID
+  #       - powershell: |
+  #           # Retrieve the server PID from the pipeline variable
+  #           $serverPID = $(serverPID)
+  #           Write-Host "Retrieved server PID: $serverPID"
+  #         displayName: 'Retrieve server PID'
+  #         name: retrieveServerPID
 
-        - powershell: |
-            $serverPID = $(serverPID)
-            if (Get-Process -Id $serverPID -ErrorAction SilentlyContinue) {
-            Stop-Process -Id $serverPID -Force
-            Write-Host "Server process with PID $serverPID has been stopped."
-            } else {
-            Write-Host "Server process with PID $serverPID is not running."
-            }
-          displayName: 'Stop Yarn Test Server'
-          name: stopServer
+  #       - powershell: |
+  #           $serverPID = $(serverPID)
+  #           if (Get-Process -Id $serverPID -ErrorAction SilentlyContinue) {
+  #           Stop-Process -Id $serverPID -Force
+  #           Write-Host "Server process with PID $serverPID has been stopped."
+  #           } else {
+  #           Write-Host "Server process with PID $serverPID is not running."
+  #           }
+  #         displayName: 'Stop Yarn Test Server'
+  #         name: stopServer
 
   - stage: deploy_stage
     displayName: Deploy stage
@@ -89,5 +89,5 @@ stages:
                 inputs:
                       sshEndpoint: tc_vm_ssh  # service connection name for ssh
                       runOptions: 'commands'
-                      commands: 'ls -l'
+                      commands: 'echo hello'
                       readyTimeout: '20000'          
