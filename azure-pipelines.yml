@@ -72,9 +72,16 @@ jobs:
       runOnce:
         deploy:
           steps:
-          - task: SSH@0
-            inputs:
-              sshEndpoint: 'tc_vm_ssh'
-              runOptions: 'commands'
-              commands: 'git -C /var/www/tc_backend/tc_backend_v4 status'
-              readyTimeout: '20000'  
+          # - task: SSH@0
+          #   inputs:
+          #     sshEndpoint: 'tc_vm_ssh'
+          #     runOptions: 'commands'
+          #     commands: 'git -C /var/www/tc_backend/tc_backend_v4 status'
+          #     readyTimeout: '20000'  
+            - task: SSH@0
+              displayName: 'List files in app directory'
+              inputs:
+                    sshEndpoint: tc_vm_ssh  # service connection name for ssh
+                    runOptions: 'commands'
+                    commands: 'ls -l'
+                    readyTimeout: '20000'          
