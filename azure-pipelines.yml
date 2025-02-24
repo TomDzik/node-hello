@@ -84,7 +84,7 @@ stages:
       - deployment: deploy
         displayName: Deploy to VM
         environment:
-          name: tc_vm
+          name: 'tc_vm'
           resourceType: VirtualMachine
         strategy:
           runOnce:
@@ -96,10 +96,10 @@ stages:
               #     runOptions: 'commands'
               #     commands: 'git -C /var/www/tc_backend/tc_backend_v4 status'
               #     readyTimeout: '20000'  
-              - task: SSH@0
-                displayName: 'List files in app directory'
-                inputs:
-                      sshEndpoint: tc_vm_ssh  # service connection name for ssh
-                      runOptions: 'commands'
-                      commands: 'echo hello'
-                      readyTimeout: '20000'          
+                - task: SSH@0
+                  displayName: 'List files in app directory'
+                  inputs:
+                    sshEndpoint: tc_vm_ssh  # service connection name for ssh
+                    runOptions: 'commands'
+                    commands: 'echo hello'
+                    readyTimeout: '20000'          
