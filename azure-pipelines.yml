@@ -13,5 +13,5 @@ variables:
     value: true
 
 steps:
-- publish: $(System.DefaultWorkingDirectory)/bin/HelloApp
+- publish: $(System.DefaultWorkingDirectory)/
   artifact: HelloApp         
