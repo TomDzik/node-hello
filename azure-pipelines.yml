@@ -11,6 +11,9 @@ trigger:
     exclude:
       - 'refs/pull/*'
 
+pr:
+  - none
+
 pool: self-host
 
 variables:
