@@ -8,12 +8,8 @@ trigger:
     include:
       - main
 
-pool: self-host
-
-variables:
-  - name: System.Debug
-    value: true
+pool:
+  vmImage: 'ubuntu-latest'
 
 steps:
-- publish: $(System.DefaultWorkingDirectory)/
-  artifact: HelloApp         
+  - script: echo "Pipeline after merge on main branch finished!"
