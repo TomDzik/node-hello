@@ -8,8 +8,11 @@ trigger:
     include:
       - master
 
-pool:
-  vmImage: 'ubuntu-latest'
+pool: self-host
+
+variables:
+  - name: System.Debug
+    value: true
 
 steps:
   - script: echo "Pipeline after merge on main branch finished!"
